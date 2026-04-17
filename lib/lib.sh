@@ -6,7 +6,7 @@ set -e
 #                                                                                    #
 # Project 'pterodactyl-installer'                                                    #
 #                                                                                    #
-# Copyright (C) 2018 - 2026, Vilhelm Prytz, <vilhelm@prytznet.se>                    #
+# Copyright (C) 2018 - 2025, Vilhelm Prytz, <vilhelm@prytznet.se>                    #
 #                                                                                    #
 #   This program is free software: you can redistribute it and/or modify             #
 #   it under the terms of the GNU General Public License as published by             #
@@ -124,7 +124,7 @@ welcome() {
   print_brake 70
   output "Pterodactyl panel installation script @ $SCRIPT_RELEASE"
   output ""
-  output "Copyright (C) 2018 - 2026, Vilhelm Prytz, <vilhelm@prytznet.se>"
+  output "Copyright (C) 2018 - 2025, Vilhelm Prytz, <vilhelm@prytznet.se>"
   output "https://github.com/pterodactyl-installer/pterodactyl-installer"
   output ""
   output "This script is not associated with the official Pterodactyl Project."
@@ -237,29 +237,19 @@ create_db() {
 
 # --------------- Package Manager -------------- #
 
+# Argument for quite mode
 update_repos() {
   local args=""
-  
-  [[ "$1" == true ]] && args="-qq"
-
+  [[ $1 == true ]] && args="-qq"
   case "$OS" in
-    ubuntu | debian)
-      output "Updating package repositories..."
-      if ! apt-get update -y $args; then
-        error "Failed to update repositories."
-        return 1
-      fi
-      ;;
-    centos | almalinux | rockylinux)
-      # Skip since these distros auto-refresh metadata
-      output "Skipping repository update (handled automatically on $OS)."
-      ;;
-    *)
-      warning "Unsupported OS: $OS — skipping repository update."
-      ;;
+  ubuntu | debian)
+    apt-get -y $args update
+    ;;
+  *)
+    # Do nothing as AlmaLinux and RockyLinux update metadata before installing packages.
+    ;;
   esac
 }
-
 
 # First argument list of packages to install, second argument for quite mode
 install_packages() {
@@ -538,6 +528,7 @@ esac
 
 case "$OS" in
 ubuntu)
+  [ "$OS_VER_MAJOR" == "20" ] && SUPPORTED=true
   [ "$OS_VER_MAJOR" == "22" ] && SUPPORTED=true
   [ "$OS_VER_MAJOR" == "24" ] && SUPPORTED=true
   export DEBIAN_FRONTEND=noninteractive
